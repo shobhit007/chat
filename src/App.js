@@ -42,6 +42,10 @@ function App() {
       console.log("disconnected", reason);
     });
 
+    socket.on("connect", (reason) => {
+      console.log("user connect", reason);
+    });
+
     socket.on("reconnect", () => {
       console.log("reconnected");
     });
