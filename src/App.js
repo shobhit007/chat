@@ -44,6 +44,10 @@ function App() {
 
     socket.on("connect", (reason) => {
       console.log("user connect", reason);
+      console.log("roomId", room);
+      if (room) {
+        socket.emit("joinRoom", room);
+      }
     });
 
     socket.on("reconnect", () => {
