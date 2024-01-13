@@ -42,9 +42,14 @@ function App() {
       console.log("disconnected", reason);
     });
 
+    socket.on("reconnect", (attempt) => {
+      console.log("reconnected attempt", attempt);
+    });
+
     socket.on("connect", (reason) => {
       console.log("user connect", reason);
       console.log("socket connected", socket.connected);
+      console.log("socket recovered", socket.recovered);
       const room = localStorage.getItem("currentRoom");
       console.log("currentRoom", room);
       if (room) {
@@ -97,10 +102,7 @@ function App() {
   };
 
   useEffect(() => {
-    const socket = io("https://younglabs-apis-uat-742lbomu3a-el.a.run.app", {
-      reconnection: true,
-      reconnectionDelay: 5000,
-    });
+    const socket = io("https://younglabs-apis-uat-742lbomu3a-el.a.run.app");
 
     setSocket(socket);
   }, []);
