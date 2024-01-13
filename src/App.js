@@ -44,14 +44,12 @@ function App() {
 
     socket.on("connect", (reason) => {
       console.log("user connect", reason);
-      console.log("roomId", room);
+      console.log("socket connected", socket.connected);
+      const room = localStorage.getItem("currentRoom");
+      console.log("currentRoom", room);
       if (room) {
         socket.emit("joinRoom", room);
       }
-    });
-
-    socket.on("reconnect", () => {
-      console.log("reconnected");
     });
 
     return () => {
@@ -95,6 +93,7 @@ function App() {
 
   const joinRoom = () => {
     socket.emit("joinRoom", room);
+    localStorage.setItem("currentRoom", room);
   };
 
   useEffect(() => {
