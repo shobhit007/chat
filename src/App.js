@@ -123,6 +123,12 @@ function App() {
     }
   }, []);
 
+  const disconnect = () => {
+    if (socket) {
+      socket.disconnect();
+    }
+  };
+
   return (
     <div className="App">
       <input
@@ -142,6 +148,7 @@ function App() {
       />
       <button onClick={sendMessage}>Send Message</button>
       <button onClick={joinRoom}>Join Room</button>
+      <button onClick={disconnect}>disconnect</button>
       {socket && (
         <button onClick={connectWithSocket}>
           {socket.connected ? "disconnect" : "connect"}
