@@ -35,84 +35,57 @@ function App() {
   useEffect(() => {
     if (!socket) return;
     socket.on("connected", onConnected);
-    socket.on("message", onMessageReceived);
+    socket.on("messageReceived", onMessageReceived);
     socket.on("newGroup", onGroupCreated);
 
     socket.on("disconnect", (reason) => {
       console.log("disconnected", reason);
     });
 
-    socket.on("reconnect", (attempt) => {
-      console.log("reconnected attempt", attempt);
-    });
-
     socket.on("connect", (reason) => {
       console.log("user connect", reason);
-      console.log("socket connected", socket.connected);
-      console.log("socket recovered", socket.recovered);
-      const room = localStorage.getItem("currentRoom");
-      console.log("currentRoom", room);
-      if (room) {
-        socket.emit("joinRoom", room);
-      }
     });
 
     return () => {
       socket.off("connected", onConnected);
-      socket.off("message", onMessageReceived);
+      socket.off("messageReceived", onMessageReceived);
       socket.off("newGroup", onGroupCreated);
     };
   }, [socket]);
 
   const sendMessage = async () => {
-    // const res = await fetch("http://localhost:8080/admin/chat/sendMessage", {
-    //   method: "POST",
-    //   headers: {
-    //     "content-type": "application/json",
-    //   },
-    //   body: JSON.stringify({
-    //     user: { id: "shobhitsaini709@gmail.com", type: "internal_user" },
-    //     message,
-    //     groupId: room,
-    //     messageType: "test",
-    //   }),
-    // });
-
-    // const data = await res.json();
-    // console.log(data);
-    if (socket.connected) {
-      if (room) {
-        socket.emit("sendMessage", message, room);
-      } else {
-        socket.emit("sendMessage", message);
-      }
-    } else {
-      socket.connect();
-      if (room) {
-        socket.emit("sendMessage", message, room);
-      } else {
-        socket.emit("sendMessage", message);
-      }
+    if (room && userId) {
+      const res = await fetch(
+        "https://younglabsapis-33heck6yza-el.a.run.app/admin/chat/sendMessage",
+        {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({
+            user: { id: userId, type: "internal_user" },
+            message,
+            groupId: room,
+            type: "text",
+          }),
+        }
+      );
+      const data = await res.json();
+      console.log(data);
     }
   };
 
-  const joinRoom = () => {
-    socket.emit("joinRoom", room);
-    localStorage.setItem("currentRoom", room);
-  };
-
-  useEffect(() => {
-    const socket = io("https://younglabs-apis-uat-742lbomu3a-el.a.run.app");
-
-    setSocket(socket);
-  }, []);
-
   const connectWithSocket = async () => {
-    console.log(socket.connected);
-    if (socket.connected) {
-      socket.disconnect();
-    } else {
-      socket.connect();
+    if (userId) {
+      console.log("userId", userId);
+      const socket = io("https://younglabsapis-33heck6yza-el.a.run.app", {
+        auth: {
+          email: userId,
+          type: "internal_user",
+        },
+      });
+
+      setSocket(socket);
     }
   };
 
@@ -122,12 +95,6 @@ function App() {
       window.location.href = "app://redirect.com.younglabs.android";
     }
   }, []);
-
-  const disconnect = () => {
-    if (socket) {
-      socket.disconnect();
-    }
-  };
 
   return (
     <div className="App">
@@ -147,17 +114,11 @@ function App() {
         onChange={(e) => setMessage(e.target.value)}
       />
       <button onClick={sendMessage}>Send Message</button>
-      <button onClick={joinRoom}>Join Room</button>
-      <button onClick={disconnect}>disconnect</button>
-      {socket && (
-        <button onClick={connectWithSocket}>
-          {socket.connected ? "disconnect" : "connect"}
-        </button>
-      )}
+      <button onClick={connectWithSocket}>connect</button>
       <div>
-        {messages.map((message, index) => (
+        {messages.map((item, index) => (
           <div key={index}>
-            <span>{message}</span>
+            <span>{item.message}</span>
           </div>
         ))}
       </div>
